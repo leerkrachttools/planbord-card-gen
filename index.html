@@ -572,6 +572,31 @@
             await new Promise(r => setTimeout(r, 300));
         }
     }
+
+    // Paste image from clipboard (Ctrl+V)
+    document.addEventListener('paste', (e) => {
+        if (activeCardIndex < 0) return;
+        const items = e.clipboardData?.items;
+        if (!items) return;
+        for (const item of items) {
+            if (item.type.startsWith('image/')) {
+                e.preventDefault();
+                const file = item.getAsFile();
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    cards[activeCardIndex].imgSrc = ev.target.result;
+                    cards[activeCardIndex].offsetX = 0;
+                    cards[activeCardIndex].offsetY = 0;
+                    renderCards();
+                    const uz = document.getElementById('uploadZone');
+                    uz.querySelector('span').textContent = 'Geplakt van klembord';
+                    uz.querySelector('small').textContent = 'Afbeelding geladen';
+                };
+                reader.readAsDataURL(file);
+                break;
+            }
+        }
+    });
 </script>
 </body>
 </html>
